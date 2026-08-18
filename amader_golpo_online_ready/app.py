@@ -10,11 +10,10 @@ app.secret_key = os.environ.get("SECRET_KEY", "change-me-in-render")
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 BUCKET = os.environ.get("SUPABASE_BUCKET", "love-photos")
-ADMIN_USER = os.environ.get("ADMIN_USERNAME", "admin")
-ADMIN_PASS_HASH = os.environ.get(
-    "ADMIN_PASSWORD_HASH",
-    generate_password_hash("ChaduSiam")
-)
+
+# Environment variables থেকে স্পেস বাদ দিয়ে ক্লিন ভ্যালু নেওয়া
+ADMIN_USER = os.environ.get("ADMIN_USERNAME", "admin").strip()
+ADMIN_PASS_HASH = os.environ.get("ADMIN_PASSWORD_HASH", "").strip()
 
 sb = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -43,7 +42,7 @@ def pretty_date(v):
         return ""
     try:
         d = datetime.strptime(v, "%Y-%m-%d")
-        months = ["","জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন",
+        months = ["","জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন",
                   "জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"]
         return f"{d.day} {months[d.month]} {d.year}"
     except Exception:
@@ -69,27 +68,27 @@ footer{text-align:center;padding:55px;color:var(--muted);border-top:1px solid va
 @media(max-width:800px){.links a{display:none}.section{padding:65px 18px}.title h2{font-size:2.25rem}.wall,.grid{grid-template-columns:1fr}.cube{width:220px;height:220px}.face{width:220px;height:220px}.front{transform:translateZ(110px)}.back{transform:rotateY(180deg) translateZ(110px)}.right{transform:rotateY(90deg) translateZ(110px)}.left{transform:rotateY(-90deg) translateZ(110px)}.top{transform:rotateX(90deg) translateZ(110px)}.bottom{transform:rotateX(-90deg) translateZ(110px)}}
 </style></head><body>
 <header class="hero"><nav><div class="logo">আমাদের গল্প ❤️</div><div class="links"><a href="#story">গল্প</a><a href="#best">Best Photos</a><a href="#wall">Photo Wall</a><a href="#oviman">অভিমান</a><a href="#promise">Promise</a><a href="#meetup">Meetup Date</a></div></nav>
-<div class="hero-content"><div class="eyebrow">তুমি + আমি = আমাদের গল্প</div><h1>আমাদের গল্প</h1><p>ছোট ছোট মুহূর্ত, কিছু অভিমান, অনেক ভালোবাসা—সবকিছু এক জায়গায়।</p><a class="btn" href="#best">আমাদের Best Photos ✨</a></div></header>
+<div class="hero-content"><div class="eyebrow">তুমি + আমি = আমাদের গল্প</div><h1>আমাদের গল্প</h1><p>ছোট ছোট মুহূর্ত, কিছু অভিমান, অনেক ভালোবাসা—সবকিছু এক জায়গায়।</p><a class="btn" href="#best">আমাদের Best Photos ✨</a></div></header>
 
 <section id="story" class="section"><div class="title"><span>01</span><div><h2>আমাদের গল্প</h2><p>যে গল্পটা শুধু আমাদের।</p></div></div><div class="card story">{{ story }}</div></section>
 
-<section id="best" class="section"><div class="title"><span>02</span><div><h2>Our Best Photos</h2><p>Admin থেকে select করা প্রিয় ছবিগুলো।</p></div></div>
+<section id="best" class="section"><div class="title"><span>02</span><div><h2>Our Best Photos</h2><p>Admin থেকে select করা প্রিয় ছবিগুলো।</p></div></div>
 {% if cube %}<div class="cube-area" id="area"><div class="cube" id="cube">
 {% for cls in ['front','back','right','left','top','bottom'] %}<div class="face {{cls}}"><img src="{{cube[loop.index0 % cube|length].url}}"></div>{% endfor %}
 </div></div><div class="center"><h3 id="ct">{{cube[0].description}}</h3><p class="muted" id="cd">{{cube[0].photo_date|pretty_date}}</p></div><div class="dots">{% for p in cube %}<button class="dot {% if loop.first %}active{% endif %}" onclick="pick({{loop.index0}})"></button>{% endfor %}</div>
-{% else %}<div class="card center"><h3>এখনো Best Photo যোগ করা হয়নি ❤️</h3></div>{% endif %}</section>
+{% else %}<div class="card center"><h3>এখনো Best Photo যোগ করা হয়নি ❤️</h3></div>{% endif %}</section>
 
 <section id="wall" class="section"><div class="title"><span>03</span><div><h2>Our Photo Wall</h2><p>আমাদের সব ছবি—তারিখ ও description সহ।</p></div></div>
 {% if photos %}<div class="wall">{% for p in photos %}<article class="card photo"><img src="{{p.url}}" alt=""><div><div class="date">{{p.photo_date|pretty_date}}</div><h3>{{p.description}}</h3>{% if p.is_cube %}<small class="date">⭐ Best Photo</small>{% endif %}</div></article>{% endfor %}</div>{% else %}<div class="card center">এখনো কোনো ছবি নেই 📸</div>{% endif %}</section>
 
-<section id="oviman" class="section"><div class="title"><span>04</span><div><h2>অভিমান</h2><p>অভিমান থাকবে, কিন্তু দূরত্ব নয়।</p></div></div><div class="grid">
-{% for x in oviman %}<article class="card"><div class="date">{{x.oviman_date|pretty_date}}</div><h3>💭 অভিমানের কারণ</h3><p class="muted">{{x.reason}}</p><div class="label">অভিমান ভাঙানোর উপায়</div><p class="muted">{{x.solution}}</p></article>{% else %}<div class="card">এখনো কোনো অভিমান জমা হয়নি ❤️</div>{% endfor %}</div></section>
+<section id="oviman" class="section"><div class="title"><span>04</span><div><h2>অভিমান</h2><p>অভিমান থাকবে, কিন্তু দূরত্ব নয়।</p></div></div><div class="grid">
+{% for x in oviman %}<article class="card"><div class="date">{{x.oviman_date|pretty_date}}</div><h3>💭 অভিমানের কারণ</h3><p class="muted">{{x.reason}}</p><div class="label">অভিমান ভাঙানোর উপায়</div><p class="muted">{{x.solution}}</p></article>{% else %}<div class="card">এখনো কোনো অভিমান জমা হয়নি ❤️</div>{% endfor %}</div></section>
 
-<section id="promise" class="section"><div class="title"><span>05</span><div><h2>Our Promises</h2><p>আমাদের একে অপরকে দেওয়া প্রতিশ্রুতি।</p></div></div><div class="grid">
-{% for p in promises %}<article class="card promise"><div class="label">❤️ Promise</div><h3>{{p.promise_text}}</h3>{% if p.promise_date %}<div class="date">{{p.promise_date|pretty_date}}</div>{% endif %}</article>{% else %}<div class="card">আমাদের Promise এখনো লেখা হয়নি ❤️</div>{% endfor %}</div></section>
+<section id="promise" class="section"><div class="title"><span>05</span><div><h2>Our Promises</h2><p>আমাদের একে অপরকে দেওয়া প্রতিশ্রুতি।</p></div></div><div class="grid">
+{% for p in promises %}<article class="card promise"><div class="label">❤️ Promise</div><h3>{{p.promise_text}}</h3>{% if p.promise_date %}<div class="date">{{p.promise_date|pretty_date}}</div>{% endif %}</article>{% else %}<div class="card">আমাদের Promise এখনো লেখা হয়নি ❤️</div>{% endfor %}</div></section>
 
-<section id="meetup" class="section"><div class="title"><span>06</span><div><h2>Meetup Date</h2><p>কখন দেখা হবে, কোথায় ঘুরবো আর কী খাবো।</p></div></div><div class="grid">
-{% for m in meetups %}<article class="card"><div class="label">📅 Meetup Date</div><h3>{{m.meetup_date|pretty_date}}</h3><div class="count countdown" data-date="{{m.meetup_date}}"></div><div class="label">📍 কোথায় ঘুরবো</div><ul class="muted">{% for x in m.places.splitlines() %}{% if x.strip() %}<li>{{x}}</li>{% endif %}{% endfor %}</ul><div class="label">🍜 কী খাবো</div><ul class="muted">{% for x in m.foods.splitlines() %}{% if x.strip() %}<li>{{x}}</li>{% endif %}{% endfor %}</ul></article>{% else %}<div class="card">এখনো কোনো Meetup Date ঠিক হয়নি 🌸</div>{% endfor %}</div></section>
+<section id="meetup" class="section"><div class="title"><span>06</span><div><h2>Meetup Date</h2><p>কখন দেখা হবে, কোথায় ঘুরবো আর কী খাবো।</p></div></div><div class="grid">
+{% for m in meetups %}<article class="card"><div class="label">📅 Meetup Date</div><h3>{{m.meetup_date|pretty_date}}</h3><div class="count countdown" data-date="{{m.meetup_date}}"></div><div class="label">📍 কোথায় ঘুরবো</div><ul class="muted">{% for x in m.places.splitlines() %}{% if x.strip() %}<li>{{x}}</li>{% endif %}{% endfor %}</ul><div class="label">🍜 কী খাবো</div><ul class="muted">{% for x in m.foods.splitlines() %}{% if x.strip() %}<li>{{x}}</li>{% endif %}{% endfor %}</ul></article>{% else %}<div class="card">এখনো কোনো Meetup Date ঠিক হয়নি 🌸</div>{% endfor %}</div></section>
 <footer>আমাদের গল্প • শুধু আমাদের জন্য ❤️</footer>
 <script>
 const cp={{cube|tojson}}, cube=document.getElementById('cube'), area=document.getElementById('area'); let ci=0,rx=-14,ry=28;
@@ -117,11 +116,11 @@ ADMIN = r"""
 <div id="photos" class="tabcontent"><h2>Photos</h2><form method="post" action="/admin/photos/add" enctype="multipart/form-data"><label>ছবি<input type="file" name="photo" accept="image/*" required></label><label>Description<input name="description" required></label><label>তারিখ<input type="date" name="photo_date" required></label><button>Upload 📸</button></form><hr>
 {% for p in photos %}<div class="item"><div class="itemmain"><img class="thumb" src="{{p.url}}"><div><b>{{p.description}}</b><br><span class="muted">{{p.photo_date|pretty_date}}</span><br>{% if p.is_cube %}<b style="color:#d84f7b">⭐ Cube-এ আছে</b>{% endif %}</div></div><div class="actions">{% if p.is_cube %}<form method="post" action="/admin/photos/{{p.id}}/cube"><button class="tab">Remove from Cube</button></form>{% else %}<form method="post" action="/admin/photos/{{p.id}}/cube"><button class="green">Make Best Photo</button></form>{% endif %}<form method="post" action="/admin/photos/{{p.id}}/delete" onsubmit="return confirm('Delete করবে?')"><button class="danger">Delete</button></form></div></div>{% endfor %}</div>
 
-<div id="oviman" class="tabcontent"><h2>অভিমান</h2><form method="post" action="/admin/oviman/add"><label>তারিখ<input type="date" name="oviman_date" required></label><label>কারণ<textarea name="reason" required></textarea></label><label>ভাঙানোর উপায়<textarea name="solution" required></textarea></label><button>Save 💭</button></form>{% for x in oviman %}<div class="item"><div><b>{{x.oviman_date|pretty_date}}</b><br><span class="muted">{{x.reason}}</span></div><form method="post" action="/admin/oviman/{{x.id}}/delete"><button class="danger">Delete</button></form></div>{% endfor %}</div>
+<div id="oviman" class="tabcontent"><h2>অভিমান</h2><form method="post" action="/admin/oviman/add"><label>তারিখ<input type="date" name="oviman_date" required></label><label>কারণ<textarea name="reason" required></textarea></label><label>ভাঙানোর উপায়<textarea name="solution" required></textarea></label><button>Save 💭</button></form>{% for x in oviman %}<div class="item"><div><b>{{x.oviman_date|pretty_date}}</b><br><span class="muted">{{x.reason}}</span></div><form method="post" action="/admin/oviman/{{x.id}}/delete"><button class="danger">Delete</button></form></div>{% endfor %}</div>
 
 <div id="promise" class="tabcontent"><h2>Our Promises ❤️</h2><form method="post" action="/admin/promise/add"><label>Promise<textarea name="promise_text" required></textarea></label><label>Date — optional<input type="date" name="promise_date"></label><button>Save Promise</button></form>{% for p in promises %}<div class="item"><div><b>{{p.promise_text}}</b>{% if p.promise_date %}<br><span class="muted">{{p.promise_date|pretty_date}}</span>{% endif %}</div><form method="post" action="/admin/promise/{{p.id}}/delete"><button class="danger">Delete</button></form></div>{% endfor %}</div>
 
-<div id="meetup" class="tabcontent"><h2>Meetup Date 📅</h2><form method="post" action="/admin/meetup/add"><label>Date<input type="date" name="meetup_date" required></label><label>কোথায় ঘুরবো<textarea name="places" placeholder="এক লাইনে একটি জায়গা" required></textarea></label><label>কী খাবো<textarea name="foods" placeholder="এক লাইনে একটি খাবার" required></textarea></label><button>Save Meetup</button></form>{% for m in meetups %}<div class="item"><div><b>{{m.meetup_date|pretty_date}}</b><br><span class="muted">{{m.places.splitlines()[0] if m.places else ''}}</span></div><form method="post" action="/admin/meetup/{{m.id}}/delete"><button class="danger">Delete</button></form></div>{% endfor %}</div>
+<div id="meetup" class="tabcontent"><h2>Meetup Date 📅</h2><form method="post" action="/admin/meetup/add"><label>Date<input type="date" name="meetup_date" required></label><label>কোথায় ঘুরবো<textarea name="places" placeholder="এক লাইনে একটি জায়গা" required></textarea></label><label>কী খাবো<textarea name="foods" placeholder="এক লাইনে একটি খাবার" required></textarea></label><button>Save Meetup</button></form>{% for m in meetups %}<div class="item"><div><b>{{m.meetup_date|pretty_date}}</b><br><span class="muted">{{m.places.splitlines()[0] if m.places else ''}}</span></div><form method="post" action="/admin/meetup/{{m.id}}/delete"><button class="danger">Delete</button></form></div>{% endfor %}</div>
 
 </div>{% endif %}</div><script>function tab(id,b){document.querySelectorAll('.tabcontent').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');b.classList.add('active')}</script></body></html>
 """
@@ -131,7 +130,7 @@ def prepare(items, image=False):
     out = []
     for x in items:
         x = dict(x)
-        if image:
+        if image and "storage_path" in x:
             x["url"] = sb.storage.from_(BUCKET).get_public_url(x["storage_path"])
         out.append(x)
     return out
@@ -139,8 +138,8 @@ def prepare(items, image=False):
 
 @app.get("/")
 def home():
-    photos = prepare(rows("photos", "photo_date"))
-    cube = [p for p in photos if p["is_cube"]]
+    photos = prepare(rows("photos", "photo_date"), image=True)
+    cube = [p for p in photos if p.get("is_cube")]
     return render_template_string(
         HOME,
         story=setting("story", "এখানে আমাদের গল্প লিখে রাখো ❤️"),
@@ -155,19 +154,29 @@ def home():
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if request.method == "POST":
-        u = request.form.get("username", "")
-        p = request.form.get("password", "")
-        if u == ADMIN_USER and check_password_hash(ADMIN_PASS_HASH, p):
+        u = request.form.get("username", "").strip()
+        p = request.form.get("password", "").strip()
+        
+        # Render Environment-এ Hash দেওয়া থাকলে চেক করবে, না থাকলে সরাসরি "ChaduSiam" পাসওয়ার্ড গ্রহণ করবে
+        is_pass_valid = (
+            check_password_hash(ADMIN_PASS_HASH, p)
+            if ADMIN_PASS_HASH
+            else (p == "ChaduSiam")
+        )
+        
+        if u == ADMIN_USER and is_pass_valid:
             session["admin"] = True
             return redirect("/admin")
         flash("Username অথবা password ভুল।")
+        
     if not admin_ok():
         return render_template_string(ADMIN, auth=False)
+        
     return render_template_string(
         ADMIN,
         auth=True,
         story=setting("story", ""),
-        photos=prepare(rows("photos", "id")),
+        photos=prepare(rows("photos", "id"), image=True),
         oviman=rows("oviman", "oviman_date"),
         promises=rows("promises", "id"),
         meetups=rows("meetups", "meetup_date", True)
@@ -184,7 +193,7 @@ def logout():
 def save_story():
     if not admin_ok(): return redirect("/admin")
     set_setting("story", request.form["story"].strip())
-    flash("গল্প Save হয়েছে ❤️")
+    flash("গল্প Save হয়েছে ❤️")
     return redirect("/admin")
 
 
@@ -198,7 +207,7 @@ def add_photo():
         flash("ছবি, description ও date সব দিতে হবে।"); return redirect("/admin")
     ext = f.filename.rsplit(".", 1)[-1].lower()
     if ext not in {"jpg","jpeg","png","webp","gif"}:
-        flash("শুধু JPG/JPEG/PNG/WEBP/GIF দেওয়া যাবে।"); return redirect("/admin")
+        flash("শুধু JPG/JPEG/PNG/WEBP/GIF দেওয়া যাবে।"); return redirect("/admin")
     path = f"photos/{uuid.uuid4().hex}.{ext}"
     data = f.read()
     sb.storage.from_(BUCKET).upload(
@@ -209,7 +218,7 @@ def add_photo():
         "storage_path": path, "description": desc,
         "photo_date": pdate, "is_cube": False
     }).execute()
-    flash("ছবি যোগ হয়েছে 📸")
+    flash("ছবি যোগ হয়েছে 📸")
     return redirect("/admin")
 
 
